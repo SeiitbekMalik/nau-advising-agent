@@ -1,0 +1,42 @@
+# Held-out set: informal, student-style phrasing written AFTER the system was built
+# and NOT used to tune it. This measures how well the agent generalizes.
+# expect_source may be a single chunk id or a list of acceptable ones.
+# Run:  python -m eval.run_eval --set holdout
+
+answerable:
+  - q: yo how do i get out of my bio class
+    expect_source: registrar#how-to-add-or-drop-a-class
+  - q: what's the cost for a notarized enrollment letter
+    expect_source: registrar#verification-of-enrollment-voe
+  - q: can i pay with a credit card
+    expect_source: bursar#how-to-pay-tuition
+  - q: i forgot my outlook login
+    expect_source: [it-services#student-accounts-and-logins, it-services#resetting-your-password]
+  - q: is there someone who can help me with math homework
+    expect_source: student-success#free-tutoring
+  - q: how long does it take to get my transcript
+    expect_source: registrar#ordering-an-official-transcript
+  - q: where's the international office and when are they open
+    expect_source: international-student-office#international-student-office-contact-and-hours
+  - q: can my parents take a loan for me
+    expect_source: financial-aid#federal-student-loans
+  - q: can I work off campus on f1
+    expect_source: international-student-office#on-campus-work-for-f-1-students
+  - q: do I get money back if I quit after 3 weeks
+    expect_source: bursar#tuition-refund-schedule-when-you-withdraw-fall-and-spring
+  - q: who do I email about my bill
+    expect_source: [bursar#bursar-s-office-contact-information-and-hours, bursar#what-the-bursar-s-office-handles]
+
+escalation:
+  - q: my gpa is too low and they might kick me out
+    expect_escalate: academic_standing
+  - q: honestly I'm broke and might drop out
+    expect_escalate: financial_hardship
+  - q: someone is threatening me on campus
+    expect_escalate: personal_safety
+
+out_of_scope:
+  - q: how do I see my grades
+    expect_no_answer: true
+  - q: is the cafeteria open on sunday
+    expect_no_answer: true

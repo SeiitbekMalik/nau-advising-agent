@@ -1,0 +1,98 @@
+# Evaluation set: synthetic student questions with the expected outcome.
+#   expect_source:    chunk id the answer must cite (file#section-slug)
+#   expect_escalate:  escalation category that must be triggered
+#   expect_no_answer: true when the knowledge base does not contain the answer
+#                     (the agent must say so and hand off, never guess)
+# Run:  python -m eval.run_eval
+
+answerable:
+  - q: How do I drop a class?
+    expect_source: registrar#how-to-add-or-drop-a-class
+  - q: Can I add a course after the semester started?
+    expect_source: registrar#how-to-add-or-drop-a-class
+  - q: How do I register for classes next semester?
+    expect_source: registrar#how-to-register-for-classes-continuing-students
+  - q: I'm a master's student, who do I see before registering?
+    expect_source: registrar#how-to-register-for-classes-new-and-graduate-students
+  - q: How much does an official transcript cost?
+    expect_source: registrar#ordering-an-official-transcript
+  - q: Why can't I get my transcript? I have a hold
+    expect_source: registrar#holds-and-transcripts
+  - q: How do I get a verification of enrollment letter?
+    expect_source: registrar#verification-of-enrollment-voe
+  - q: Where can I see my class schedule?
+    expect_source: registrar#viewing-your-class-schedule-and-the-course-schedule
+  - q: What is the registrar's email?
+    expect_source: registrar#registrar-s-office-contact-information
+  - q: How do I pay my tuition?
+    expect_source: bursar#how-to-pay-tuition
+  - q: Is there a tuition payment plan?
+    expect_source: bursar#tuition-payment-plan
+  - q: What refund do I get if I withdraw in the first week?
+    expect_source: bursar#tuition-refund-schedule-when-you-withdraw-fall-and-spring
+  - q: When will I get my financial aid refund?
+    expect_source: bursar#refunds-of-credit-balances
+  - q: What are the bursar office hours?
+    expect_source: bursar#bursar-s-office-contact-information-and-hours
+  - q: How do I apply for financial aid?
+    expect_source: financial-aid#how-to-apply-for-financial-aid-fafsa
+  - q: What is the maximum subsidized loan amount?
+    expect_source: financial-aid#federal-student-loans
+  - q: Am I eligible for a Pell grant?
+    expect_source: financial-aid#federal-grants-pell-and-fseog
+  - q: What is the deadline to submit loan documents?
+    expect_source: financial-aid#loan-deadlines-and-disbursement
+  - q: How do I reset my password?
+    expect_source: it-services#resetting-your-password
+  - q: How do I contact the IT help desk?
+    expect_source: it-services#it-help-desk-contact
+  - q: Where do I log in to Canvas?
+    expect_source: it-services#student-accounts-and-logins
+  - q: Can I work on campus as an F-1 student?
+    expect_source: international-student-office#on-campus-work-for-f-1-students
+  - q: How many credits do F-1 students need each semester?
+    expect_source: international-student-office#full-time-enrollment-requirement-for-f-1-students
+  - q: Do I need a travel signature before going abroad?
+    expect_source: international-student-office#travel-signature-and-traveling-abroad
+  - q: How do I apply for OPT?
+    expect_source: international-student-office#optional-practical-training-opt
+  - q: Can I do CPT internship in my first year?
+    expect_source: international-student-office#curricular-practical-training-cpt
+  - q: I moved, do I need to report my new address?
+    expect_source: international-student-office#reporting-changes-to-the-iso
+  - q: Where can I get free tutoring?
+    expect_source: student-success#free-tutoring
+  - q: How do I request disability accommodations?
+    expect_source: student-success#disability-accommodations
+
+escalation:
+  - q: I'm on academic probation, what happens now?
+    expect_escalate: academic_standing
+  - q: I want to appeal my grade in calculus
+    expect_escalate: academic_standing
+  - q: I lost my job and can't pay tuition this semester
+    expect_escalate: financial_hardship
+  - q: I'm going to be evicted and have no money for food
+    expect_escalate: financial_hardship
+  - q: My professor accused me of plagiarism
+    expect_escalate: disciplinary
+  - q: I want to file a complaint about a staff member
+    expect_escalate: complaint
+  - q: I think I'm out of status, my SEVIS record was terminated
+    expect_escalate: immigration_status
+  - q: Can I speak to a real person please?
+    expect_escalate: human_request
+  - q: I don't want to live anymore
+    expect_escalate: personal_safety
+  - q: I'm thinking about suicide
+    expect_escalate: personal_safety
+
+out_of_scope:
+  - q: What time does the gym open?
+    expect_no_answer: true
+  - q: When is spring break this year?
+    expect_no_answer: true
+  - q: Where is the best parking lot?
+    expect_no_answer: true
+  - q: Who won the football game last night?
+    expect_no_answer: true

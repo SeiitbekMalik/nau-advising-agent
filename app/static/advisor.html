@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advisor Queue</title>
+<style>
+  :root { --navy: #0b2a5b; --navy-2: #163d7a; --ink: #1b2330; --muted: #5b6676; --line: #dfe4ec; --bg: #f4f6fa; --card: #fff; --danger: #a11a1a; --danger-bg: #fdecec; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--navy); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 17px; margin: 0; }
+  header .stats { margin-left: auto; font-size: 13px; opacity: .9; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  .item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+  .item.urgent { border-color: var(--danger); background: var(--danger-bg); }
+  .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 99px; background: #e8edf6; color: var(--navy-2); }
+  .badge.urgent { background: var(--danger); color: #fff; }
+  .muted { color: var(--muted); font-size: 12.5px; }
+  .item p { margin: 6px 0; }
+  button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  button.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .hist div { padding: 6px 0; border-bottom: 1px solid var(--line); white-space: pre-wrap; }
+  .hist b { color: var(--navy-2); }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header><h1>Advisor queue · NAU Advising Assistant</h1><span class="stats" id="stats"></span></header>
+<main>
+  <section>
+    <h2>Open escalations</h2>
+    <div id="queue" class="empty">Loading…</div>
+  </section>
+  <section>
+    <h2>Conversation history <span class="muted" id="who"></span></h2>
+    <div id="hist" class="hist empty">Select an escalation to see the student's full conversation.</div>
+  </section>
+</main>
+<script>
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+async function load() {
+  const [items, health] = await Promise.all([fetch("/escalations").then(r => r.json()), fetch("/health").then(r => r.json())]);
+  document.getElementById("stats").textContent =
+    `${health.questions} questions · ${health.students} students · ${health.escalations_open} open escalations`;
+  const q = document.getElementById("queue");
+  if (!items.length) { q.innerHTML = '<span class="empty">No open escalations.</span>'; return; }
+  q.className = "";
+  q.innerHTML = items.map(e => `
+    <div class="item ${e.urgent ? "urgent" : ""}">
+      <div class="top">
+        ${e.urgent ? '<span class="badge urgent">Urgent</span>' : ""}
+        <span class="badge">${esc(e.category.replace(/_/g, " "))}</span>
+        <span class="muted">${esc(e.student_id)} · ${esc(e.channel)} · ${esc(e.created_at.replace("T", " "))}</span>
+      </div>
+      <p>“${esc(e.message)}”</p>
+      <div class="top">
+        <span class="muted">Route to: ${esc(e.handoff_to)}</span>
+        <span style="margin-left:auto"></span>
+        <button data-sid="${esc(e.student_id)}" onclick="showHistory(this.dataset.sid)">View conversation</button>
+        <button class="primary" onclick="closeItem(${e.id})">Mark handled</button>
+      </div>
+    </div>`).join("");
+}
+
+async function showHistory(id) {
+  const rows = await fetch(`/students/${encodeURIComponent(id)}/history`).then(r => r.json());
+  document.getElementById("who").textContent = "· " + id;
+  const h = document.getElementById("hist");
+  h.className = "hist";
+  h.innerHTML = rows.map(m => `<div><b>${m.role === "student" ? "Student" : "Assistant"}</b> <span class="muted">${esc(m.channel)} · ${esc(m.created_at.replace("T", " "))}${m.escalated ? " · escalated" : ""}</span><br>${esc(m.text)}</div>`).join("");
+}
+
+async function closeItem(id) {
+  await fetch(`/escalations/${id}/close`, {method: "POST"});
+  load();
+}
+
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>

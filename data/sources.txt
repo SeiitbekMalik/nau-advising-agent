@@ -1,0 +1,21 @@
+# Public NAU pages to ingest into the knowledge base (one URL per line).
+# Run:  python -m app.kb.ingest
+# Never add the student portal, Canvas, or anything with personal records.
+
+https://www.na.edu/students/registrar/
+https://www.na.edu/students/bursars-office/
+https://www.na.edu/financial-aid
+https://www.na.edu/students/it-services/
+https://www.na.edu/students/international-student-office/
+https://www.na.edu/student-success/
+https://www.na.edu/academics/academic-calendar/
+https://www.na.edu/academics/course-schedule/
+https://www.na.edu/library/
+https://www.na.edu/career-center/
+https://www.na.edu/campus-life/health-services/
+https://www.na.edu/campus-life/campus-security/
+https://www.na.edu/campus-life/parking/
+https://www.na.edu/campus-life/housing/
+https://www.na.edu/degree-programs/graduate-programs/
+https://www.na.edu/documents/academics/catalog-25-26.pdf
+https://www.na.edu/documents/students/student-handbook.pdf
