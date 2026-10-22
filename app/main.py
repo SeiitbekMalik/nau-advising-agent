@@ -20,6 +20,7 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field
 
@@ -84,6 +85,14 @@ async def http_error(request: Request, exc: StarletteHTTPException) -> JSONRespo
     if exc.status_code == 404:
         body["path"] = request.url.path  # shows which address reached the app (deployment debugging)
     return JSONResponse(body, status_code=exc.status_code, headers=getattr(exc, "headers", None))
+
+
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    return FileResponse(STATIC / "img" / "favicon.png")
 
 
 @app.get("/", include_in_schema=False)

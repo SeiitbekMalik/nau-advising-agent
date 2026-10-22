@@ -52,4 +52,6 @@ def test_input_validation():
 def test_pages_are_served():
     c = client()
     assert "Advising Assistant" in c.get("/").text
-    assert "Advisor queue" in c.get("/advisor").text
+    assert "Advisor Console" in c.get("/advisor").text
+    assert c.get("/static/img/nau-logo-white.png").status_code == 200
+    assert c.get("/favicon.ico").status_code == 200

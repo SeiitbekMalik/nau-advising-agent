@@ -3,86 +3,241 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Advisor Queue</title>
+<title>Advisor Console · NAU Advising Assistant</title>
+<link rel="icon" href="/static/img/favicon.png">
 <style>
-  :root { --navy: #0b2a5b; --navy-2: #163d7a; --ink: #1b2330; --muted: #5b6676; --line: #dfe4ec; --bg: #f4f6fa; --card: #fff; --danger: #a11a1a; --danger-bg: #fdecec; }
+  :root {
+    --navy-900: #071d42; --navy-800: #0b2a5b; --navy-700: #123a78; --navy-600: #1d4f9c;
+    --sky-100: #eaf1fb; --sky-50: #f4f8fd; --sky-300: #b9cdeb;
+    --ink: #172033; --ink-2: #3a4558; --muted: #6a7487; --line: #e1e7f0; --line-2: #eef2f7;
+    --bg: #f3f6fa; --card: #fff;
+    --amber-50: #fff7ea; --amber-200: #f6d9a8; --amber-800: #8a4b00;
+    --red-50: #fdeeee; --red-200: #f3c1c1; --red-700: #b42323; --red-800: #9b1c1c;
+    --green-50: #ebf7f0; --green-700: #1f6e46;
+    --violet-50: #f2effc; --violet-800: #4b3a99;
+    --shadow: 0 1px 2px rgba(16,30,60,.05), 0 6px 24px rgba(16,30,60,.06);
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
-  header { background: var(--navy); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
-  header h1 { font-size: 17px; margin: 0; }
-  header .stats { margin-left: auto; font-size: 13px; opacity: .9; }
-  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
-  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-  h2 { font-size: 15px; margin: 0 0 10px; }
-  .item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
-  .item.urgent { border-color: var(--danger); background: var(--danger-bg); }
-  .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 99px; background: #e8edf6; color: var(--navy-2); }
-  .badge.urgent { background: var(--danger); color: #fff; }
-  .muted { color: var(--muted); font-size: 12.5px; }
-  .item p { margin: 6px 0; }
-  button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
-  button.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
-  .hist div { padding: 6px 0; border-bottom: 1px solid var(--line); white-space: pre-wrap; }
-  .hist b { color: var(--navy-2); }
-  .empty { color: var(--muted); }
+  body { margin: 0; font: 14px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  button { font: inherit; }
+  header.top { background: linear-gradient(180deg, var(--navy-800), var(--navy-900)); color: #fff; }
+  .top-inner { max-width: 1280px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }
+  .top img.logo { height: 38px; display: block; }
+  .top .divider { width: 1px; height: 30px; background: rgba(255,255,255,.25); }
+  .top .product b { display: block; font-size: 16px; font-weight: 650; }
+  .top .product span { font-size: 12.5px; color: var(--sky-300); }
+  .top .spacer { flex: 1; }
+  .top a.link { color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.25); white-space: nowrap; }
+  .top a.link:hover { background: rgba(255,255,255,.1); }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 20px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .stat span { display: block; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .stat b { display: block; font-size: 30px; line-height: 1.2; margin-top: 4px; color: var(--navy-900); font-variant-numeric: tabular-nums; }
+  .stat small { color: var(--muted); font-size: 12.5px; }
+  .stat.alert b { color: var(--red-700); }
+
+  .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; align-items: start; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .panel-head { padding: 14px 16px; border-bottom: 1px solid var(--line-2); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .panel-head h2 { margin: 0; font-size: 15px; }
+  .panel-head .sub { color: var(--muted); font-size: 12.5px; }
+  .tabs { margin-left: auto; display: flex; gap: 4px; background: var(--sky-50); padding: 3px; border-radius: 10px; }
+  .tabs button { border: 0; background: none; padding: 5px 10px; border-radius: 8px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+  .tabs button.on { background: #fff; color: var(--navy-800); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .list { padding: 12px; display: grid; gap: 10px; max-height: calc(100vh - 290px); overflow-y: auto; }
+  .item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, background .15s; }
+  .item:hover { border-color: var(--sky-300); }
+  .item.sel { border-color: var(--navy-600); background: var(--sky-50); }
+  .item.urgent { border-color: var(--red-200); background: var(--red-50); }
+  .item.urgent.sel { border-color: var(--red-700); }
+  .item.closed { opacity: .65; }
+  .line1 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 700; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; }
+  .b-urgent { background: var(--red-700); color: #fff; }
+  .b-academic_standing { background: var(--sky-100); color: var(--navy-700); }
+  .b-financial_hardship { background: var(--amber-50); color: var(--amber-800); border: 1px solid var(--amber-200); }
+  .b-disciplinary { background: var(--violet-50); color: var(--violet-800); }
+  .b-complaint { background: var(--violet-50); color: var(--violet-800); }
+  .b-immigration_status { background: var(--green-50); color: var(--green-700); }
+  .b-personal_safety { background: var(--red-50); color: var(--red-800); border: 1px solid var(--red-200); }
+  .b-human_request, .b-no_grounded_answer, .b-unknown { background: #eef0f4; color: var(--ink-2); }
+  .b-closed { background: var(--green-50); color: var(--green-700); }
+  .when { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .quote { margin: 8px 0 6px; font-size: 14px; color: var(--ink); }
+  .line2 { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12.5px; flex-wrap: wrap; }
+  .line2 .act { margin-left: auto; }
+  .btn { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 5px 11px; font-size: 12.5px; cursor: pointer; color: var(--ink-2); }
+  .btn.primary { background: var(--navy-800); border-color: var(--navy-800); color: #fff; }
+  .btn.primary:hover { background: var(--navy-700); }
+  .empty { padding: 36px 16px; text-align: center; color: var(--muted); }
+  .empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+
+  .convo { padding: 14px 16px; max-height: calc(100vh - 290px); overflow-y: auto; display: grid; gap: 12px; }
+  .msg { display: flex; gap: 10px; }
+  .msg .av { flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .msg.student .av { background: var(--sky-100); color: var(--navy-700); }
+  .msg.agent .av { background: var(--navy-800); }
+  .msg.agent .av img { height: 16px; }
+  .msg .body { flex: 1; min-width: 0; }
+  .msg .hd { font-size: 12px; color: var(--muted); }
+  .msg .hd b { color: var(--ink); font-size: 13px; margin-right: 6px; }
+  .msg .tx { white-space: pre-wrap; word-break: break-word; margin-top: 2px; }
+  .msg.esc .tx { border-left: 3px solid var(--amber-200); padding-left: 10px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .chip { font-size: 11.5px; background: var(--sky-50); border: 1px solid var(--line); border-radius: 7px; padding: 2px 7px; color: var(--ink-2); text-decoration: none; }
+  .chip:hover { border-color: var(--navy-600); }
+
+  .kb { margin-top: 18px; }
+  .kb ul { list-style: none; margin: 0; padding: 12px 16px 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kb li a { display: block; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); font-size: 13px; background: #fbfcfe; word-break: break-all; }
+  .kb li a:hover { border-color: var(--navy-600); }
+  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 18px; }
+
+  @media (max-width: 960px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .kb ul { grid-template-columns: 1fr; }
+    .top .product span, .top .divider { display: none; }
+    .top img.logo { height: 30px; }
+    .list, .convo { max-height: none; }
+  }
 </style>
 </head>
 <body>
-<header><h1>Advisor queue · NAU Advising Assistant</h1><span class="stats" id="stats"></span></header>
+<header class="top">
+  <div class="top-inner">
+    <img class="logo" src="/static/img/nau-logo-white.png" alt="North American University">
+    <div class="divider"></div>
+    <div class="product"><b>Advisor Console</b><span>Escalations from the AI advising assistant</span></div>
+    <div class="spacer"></div>
+    <a class="link" href="/" target="_blank">Open student chat</a>
+  </div>
+</header>
+
 <main>
-  <section>
-    <h2>Open escalations</h2>
-    <div id="queue" class="empty">Loading…</div>
-  </section>
-  <section>
-    <h2>Conversation history <span class="muted" id="who"></span></h2>
-    <div id="hist" class="hist empty">Select an escalation to see the student's full conversation.</div>
+  <div class="stats">
+    <div class="stat"><span>Questions answered</span><b id="s-q">–</b><small>all channels</small></div>
+    <div class="stat"><span>Students</span><b id="s-st">–</b><small>unique test IDs</small></div>
+    <div class="stat alert"><span>Open escalations</span><b id="s-open">–</b><small id="s-urg">&nbsp;</small></div>
+    <div class="stat"><span>Knowledge base</span><b id="s-kb">–</b><small id="s-src">sections from official pages</small></div>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Escalation queue</h2><span class="sub">The AI never decides these cases</span>
+        <div class="tabs"><button class="on" data-f="open">Open</button><button data-f="all">All</button></div>
+      </div>
+      <div class="list" id="queue"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Conversation</h2><span class="sub" id="who">Select a case to see the full history</span></div>
+      <div class="convo" id="convo"><div class="empty"><b>No case selected</b>Click an escalation to review what the student asked and what the assistant answered.</div></div>
+    </section>
+  </div>
+
+  <section class="panel kb">
+    <div class="panel-head"><h2>Official sources in the knowledge base</h2><span class="sub" id="gen"></span></div>
+    <ul id="sources"></ul>
   </section>
 </main>
-<script>
-function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+<footer>Capstone prototype by Seiitbek Sharshenbaev · Advisor: Dr. Azamat Zhamanov · Synthetic test data only</footer>
 
-async function load() {
-  const [items, health] = await Promise.all([fetch("/escalations").then(r => r.json()), fetch("/health").then(r => r.json())]);
-  document.getElementById("stats").textContent =
-    `${health.questions} questions · ${health.students} students · ${health.escalations_open} open escalations`;
-  const q = document.getElementById("queue");
-  if (!items.length) { q.innerHTML = '<span class="empty">No open escalations.</span>'; return; }
-  q.className = "";
-  q.innerHTML = items.map(e => `
-    <div class="item ${e.urgent ? "urgent" : ""}">
-      <div class="top">
-        ${e.urgent ? '<span class="badge urgent">Urgent</span>' : ""}
-        <span class="badge">${esc(e.category.replace(/_/g, " "))}</span>
-        <span class="muted">${esc(e.student_id)} · ${esc(e.channel)} · ${esc(e.created_at.replace("T", " "))}</span>
+<script>
+const LABELS = {
+  personal_safety: "Personal safety", academic_standing: "Academic standing", financial_hardship: "Financial hardship",
+  disciplinary: "Conduct / integrity", complaint: "Complaint", immigration_status: "Immigration status",
+  human_request: "Asked for a human", no_grounded_answer: "No official answer", unknown: "Other",
+};
+let filter = "open", selected = null;
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function ago(iso) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + " min ago";
+  if (s < 86400) return Math.floor(s / 3600) + " h ago";
+  return new Date(iso).toLocaleDateString();
+}
+
+async function refresh() {
+  try {
+    const [items, h] = await Promise.all([
+      fetch("/escalations?status=" + filter).then(r => r.json()),
+      fetch("/health").then(r => r.json()),
+    ]);
+    document.getElementById("s-q").textContent = h.questions;
+    document.getElementById("s-st").textContent = h.students;
+    document.getElementById("s-open").textContent = h.escalations_open;
+    document.getElementById("s-kb").textContent = h.knowledge_base_chunks;
+    document.getElementById("s-src").textContent = `sections from ${h.knowledge_base_sources.length} official pages`;
+    document.getElementById("gen").textContent = `Answer mode: ${h.generator}`;
+    document.getElementById("sources").innerHTML = h.knowledge_base_sources.map(u =>
+      `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""))}</a></li>`).join("");
+    const urgent = items.filter(e => e.urgent && e.status === "open").length;
+    document.getElementById("s-urg").textContent = urgent ? `${urgent} urgent` : "none urgent";
+    renderQueue(items);
+  } catch (e) { /* keep last view on network hiccups */ }
+}
+
+function renderQueue(items) {
+  const el = document.getElementById("queue");
+  if (!items.length) {
+    el.innerHTML = `<div class="empty"><b>${filter === "open" ? "All clear" : "No escalations yet"}</b>Sensitive questions from the student chat will appear here.</div>`;
+    return;
+  }
+  el.innerHTML = items.map(e => `
+    <div class="item ${e.urgent ? "urgent" : ""} ${e.status === "closed" ? "closed" : ""} ${selected === e.student_id ? "sel" : ""}" data-sid="${esc(e.student_id)}">
+      <div class="line1">
+        ${e.urgent ? '<span class="badge b-urgent">Urgent</span>' : ""}
+        <span class="badge b-${esc(e.category)}">${esc(LABELS[e.category] || e.category)}</span>
+        ${e.status === "closed" ? '<span class="badge b-closed">Handled</span>' : ""}
+        <span class="when">${ago(e.created_at)}</span>
       </div>
-      <p>“${esc(e.message)}”</p>
-      <div class="top">
-        <span class="muted">Route to: ${esc(e.handoff_to)}</span>
-        <span style="margin-left:auto"></span>
-        <button data-sid="${esc(e.student_id)}" onclick="showHistory(this.dataset.sid)">View conversation</button>
-        <button class="primary" onclick="closeItem(${e.id})">Mark handled</button>
+      <div class="quote">“${esc(e.message)}”</div>
+      <div class="line2">
+        <span>${esc(e.student_id)} · ${esc(e.channel)}</span><span>→ ${esc(e.handoff_to)}</span>
+        ${e.status === "open" ? `<button class="btn primary act" data-close="${e.id}">Mark handled</button>` : ""}
       </div>
     </div>`).join("");
+  el.querySelectorAll(".item").forEach(it => it.onclick = ev => {
+    if (ev.target.dataset.close) return;
+    selected = it.dataset.sid;
+    el.querySelectorAll(".item").forEach(x => x.classList.toggle("sel", x === it));
+    showConvo(selected);
+  });
+  el.querySelectorAll("[data-close]").forEach(b => b.onclick = async ev => {
+    ev.stopPropagation();
+    b.disabled = true;
+    await fetch(`/escalations/${b.dataset.close}/close`, {method: "POST"});
+    refresh();
+  });
 }
 
-async function showHistory(id) {
-  const rows = await fetch(`/students/${encodeURIComponent(id)}/history`).then(r => r.json());
-  document.getElementById("who").textContent = "· " + id;
-  const h = document.getElementById("hist");
-  h.className = "hist";
-  h.innerHTML = rows.map(m => `<div><b>${m.role === "student" ? "Student" : "Assistant"}</b> <span class="muted">${esc(m.channel)} · ${esc(m.created_at.replace("T", " "))}${m.escalated ? " · escalated" : ""}</span><br>${esc(m.text)}</div>`).join("");
+async function showConvo(sid) {
+  const rows = await fetch(`/students/${encodeURIComponent(sid)}/history`).then(r => r.json());
+  document.getElementById("who").textContent = `${sid} · ${rows.length} messages`;
+  document.getElementById("convo").innerHTML = rows.map(m => `
+    <div class="msg ${m.role} ${m.escalated ? "esc" : ""}">
+      <div class="av">${m.role === "agent" ? '<img src="/static/img/nau-shield-white.png" alt="">' : "ST"}</div>
+      <div class="body">
+        <div class="hd"><b>${m.role === "agent" ? "Assistant" : "Student"}</b>${esc(m.channel)} · ${ago(m.created_at)}${m.escalated ? " · escalated: " + esc(LABELS[m.category] || m.category) : ""}</div>
+        <div class="tx">${esc(m.text)}</div>
+        ${m.citations && m.citations.length ? `<div class="chips">${m.citations.map(c => `<a class="chip" href="${esc(c.url)}" target="_blank" rel="noopener">[${c.n}] ${esc(c.title)} · ${esc(c.section)}</a>`).join("")}</div>` : ""}
+      </div>
+    </div>`).join("") || '<div class="empty">No messages.</div>';
 }
 
-async function closeItem(id) {
-  await fetch(`/escalations/${id}/close`, {method: "POST"});
-  load();
-}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  filter = b.dataset.f;
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  refresh();
+});
 
-load();
-setInterval(load, 10000);
+refresh();
+setInterval(refresh, 8000);
 </script>
 </body>
 </html>
