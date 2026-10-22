@@ -52,6 +52,19 @@ API docs: http://localhost:8000/docs
 
 Optional: copy `.env.example` to `.env` and add an `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`.
 
+## Deploy to Vercel
+
+The repo is ready for Vercel (`vercel.json` + `api/index.py`).
+
+1. Go to https://vercel.com/new and import this GitHub repository.
+2. Leave the framework preset as **Other** and click **Deploy**. No build settings are needed.
+3. Optional: in Project → Settings → Environment Variables, add `ANTHROPIC_API_KEY`
+   (or `OPENAI_API_KEY`) to switch from offline mode to LLM answers, then redeploy.
+
+Note: on Vercel the conversation log and advisor queue are stored in `/tmp`, which is
+temporary and resets when the server restarts. That is fine for a demo; for permanent
+storage, connect a hosted PostgreSQL database (planned).
+
 ## API (shared NAU agent contract)
 
 `POST /advising-message`

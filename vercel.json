@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "{app/**,data/kb/**}",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ]
+}

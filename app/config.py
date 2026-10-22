@@ -33,7 +33,10 @@ class Settings:
     # Where the knowledge-base markdown files live (seed files + ingested web pages).
     kb_dir: Path = field(default_factory=lambda: Path(os.getenv("KB_DIR", ROOT / "data" / "kb")))
     # SQLite file for the conversation log and escalation queue.
-    db_path: Path = field(default_factory=lambda: Path(os.getenv("DB_PATH", ROOT / "data" / "advising.db")))
+    # On Vercel the project folder is read-only, so the database goes to /tmp
+    # (temporary: it resets when the server instance restarts).
+    db_path: Path = field(default_factory=lambda: Path(os.getenv(
+        "DB_PATH", "/tmp/advising.db" if os.getenv("VERCEL") else ROOT / "data" / "advising.db")))
 
     # LLM provider: "extractive" (offline, no key), "anthropic" or "openai".
     llm_provider: str = field(default_factory=lambda: os.getenv("LLM_PROVIDER", "").lower())
