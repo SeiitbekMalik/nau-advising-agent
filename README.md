@@ -54,7 +54,8 @@ Optional: copy `.env.example` to `.env` and add an `ANTHROPIC_API_KEY` or `OPENA
 
 ## Deploy to Vercel
 
-The repo is ready for Vercel (`vercel.json` + `api/index.py`).
+The repo is ready for Vercel. Vercel detects the FastAPI `app` in `app/main.py`
+(set explicitly in `pyproject.toml`); `vercel.json` only bundles the knowledge base.
 
 1. Go to https://vercel.com/new and import this GitHub repository.
 2. Leave the framework preset as **Other** and click **Deploy**. No build settings are needed.

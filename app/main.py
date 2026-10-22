@@ -18,8 +18,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field
 
 from app import __version__
@@ -75,6 +76,14 @@ def get_agent() -> AdvisingAgent:
 
 
 app = FastAPI(title="NAU Student Advising & Help-Desk Agent", version=__version__)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    body = {"detail": exc.detail}
+    if exc.status_code == 404:
+        body["path"] = request.url.path  # shows which address reached the app (deployment debugging)
+    return JSONResponse(body, status_code=exc.status_code, headers=getattr(exc, "headers", None))
 
 
 @app.get("/", include_in_schema=False)
